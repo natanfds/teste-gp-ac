@@ -9,6 +9,7 @@ export class GroupsService {
       id: '1',
       name: 'Group 1',
       parentId: '1',
+      type: 'GROUP',
     };
   }
 }
