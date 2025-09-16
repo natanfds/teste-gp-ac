@@ -1,9 +1,16 @@
-import { Controller, Post, Body, Param, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  Get,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AssociateUserGroupDto } from './dto/associate-user-group.dto';
 import { UserResponseDto } from './dto/user-response.dto';
-import type { ListOfOrganizationsDto } from './dto/organization.dto';
+import type { NodeListDto } from 'src/common/dtos/node.dto';
 
 @Controller('users')
 export class UsersController {
@@ -17,13 +24,13 @@ export class UsersController {
   @Post(':id/groups')
   associateGroup(
     @Body() associateGroupDto: AssociateUserGroupDto,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
   ): string {
     return id;
   }
 
   @Get(':id/organizations')
-  getOrganizations(@Param('id') id: number): ListOfOrganizationsDto {
+  getOrganizations(@Param('id', new ParseUUIDPipe()) id: string): NodeListDto {
     return [];
   }
 }
