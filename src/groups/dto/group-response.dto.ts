@@ -2,5 +2,5 @@ export class GroupResponseDto {
   id!: string;
   type!: 'GROUP';
   name!: string;
-  parentId?: string;
+  parentId?: string | null;
 }
