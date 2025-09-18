@@ -8,6 +8,27 @@
       "when": 1758116290087,
       "tag": "0000_lethal_wildside",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758140427638,
+      "tag": "0001_material_mojo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758140905477,
+      "tag": "0002_tan_master_mold",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1758152367503,
+      "tag": "0003_special_darkhawk",
+      "breakpoints": true
     }
   ]
 }
