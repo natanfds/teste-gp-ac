@@ -12,7 +12,6 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  console.log(`Running at: http://0.0.0.0:${port}`);
   await app.listen(port);
 }
 
