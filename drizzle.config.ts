@@ -13,7 +13,6 @@ const config: Config = {
   dbCredentials: {
     url: dbURL,
   },
-  driver: 'pglite',
 };
 
 export default defineConfig(config);
