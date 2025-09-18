@@ -5,6 +5,7 @@ import {
   Param,
   Get,
   ParseUUIDPipe,
+  HttpCode,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,20 +18,26 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @HttpCode(201)
   async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    return this.usersService.create(createUserDto);
+    const creationRes = await this.usersService.create(createUserDto);
+    return creationRes;
   }
 
   @Post(':id/groups')
-  associateGroup(
+  @HttpCode(204)
+  async associateGroup(
     @Body() associateGroupDto: AssociateUserGroupDto,
     @Param('id', new ParseUUIDPipe()) id: string,
-  ): string {
-    return id;
+  ): Promise<string> {
+    await this.usersService.associateUserWithNode(id, associateGroupDto);
+    return 'ok';
   }
 
   @Get(':id/organizations')
-  getOrganizations(@Param('id', new ParseUUIDPipe()) id: string): NodeListDto {
-    return [];
+  async getOrganizations(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<NodeListDto> {
+    return await this.usersService.getUserOrganizations(id);
   }
 }
