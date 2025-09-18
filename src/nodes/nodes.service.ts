@@ -1,13 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { NodeDto } from 'src/common/dtos/node.dto';
+import { ClosureRepository } from 'src/common/repositories/closure.repository';
+import { NodeRepository } from './repositories/nodes.repository';
+import { RelashionshipKind } from 'src/common/types/literals';
 
 @Injectable()
 export class NodesService {
-  findAncestors(id: string): NodeDto[] {
-    return [];
-  }
+  constructor(
+    private readonly closureRepository: ClosureRepository,
+    private readonly nodeRepository: NodeRepository,
+  ) {}
 
-  findDescendants(id: string): NodeDto[] {
-    return [];
+  async findRelateds(
+    id: string,
+    relashionship: RelashionshipKind,
+  ): Promise<NodeDto[]> {
+    const relations = await this.closureRepository.getNodeRelated(
+      id,
+      relashionship == 'ancestor' ? 'descendant' : 'ancestor',
+    );
+    const ids = relations.map((relation) => relation[relashionship]);
+    const nodes = await this.nodeRepository.getNodesById(ids);
+
+    const output: NodeDto[] = [];
+    nodes.forEach((v) => {
+      const depth = relations.find(
+        (relation) => relation[relashionship] === v.id,
+      )?.depth;
+      if (!depth) return;
+      output.push({
+        name: v.name,
+        id: v.id,
+        depth: depth,
+      });
+    });
+    return output;
   }
 }

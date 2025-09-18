@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { NodesService } from './nodes.service';
 import { NodesController } from './nodes.controller';
+import { ClosureRepository } from 'src/common/repositories/closure.repository';
+import { NodeRepository } from './repositories/nodes.repository';
 
 @Module({
   controllers: [NodesController],
-  providers: [NodesService],
+  providers: [NodesService, ClosureRepository, NodeRepository],
 })
 export class NodesModule {}

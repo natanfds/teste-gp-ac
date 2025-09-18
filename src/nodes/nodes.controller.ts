@@ -7,12 +7,16 @@ export class NodesController {
   constructor(private readonly nodesService: NodesService) {}
 
   @Get(':id/ancestors')
-  findAncestors(@Param('id', new ParseUUIDPipe()) id: string): NodeDto[] {
-    return this.nodesService.findAncestors(id);
+  async findAncestors(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<NodeDto[]> {
+    return await this.nodesService.findRelateds(id, 'ancestor');
   }
 
   @Get(':id/descendants')
-  findDescendants(@Param('id', new ParseUUIDPipe()) id: string): NodeDto[] {
-    return this.nodesService.findDescendants(id);
+  async findDescendants(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<NodeDto[]> {
+    return await this.nodesService.findRelateds(id, 'descendant');
   }
 }
