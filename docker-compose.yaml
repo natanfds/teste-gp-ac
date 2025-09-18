@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres:alpine
     ports:
-      - 5432:5432
+      - 5433:5432
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -13,9 +13,21 @@ services:
       - postgres_data:/var/lib/postgresql_test/data
     command: ['postgres', '-c', 'ssl=off']
     restart: 'always'
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - '16686:16686'
+      - '4318:4318'
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - observability-net
 
 volumes:
   postgres_data:
 
 networks:
   backend:
+  observability-net:
+    driver: bridge
