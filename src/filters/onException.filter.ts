@@ -5,6 +5,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import { trace } from '@opentelemetry/api';
 import { Request } from 'express';
 import { FinishLogReqData } from 'src/common/types/LogData';
 import { getDefaultLogReqData } from 'src/common/utils/getDefaultLogReqData';
@@ -15,15 +16,27 @@ export class OnExceptionFilter implements ExceptionFilter {
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
   catch(exception: Error, host: ArgumentsHost) {
+    const internalServerErrorResponse = {
+      message: 'Internal server error',
+    };
     const ctx = host.switchToHttp();
     const req = ctx.getRequest<Request>();
     const wasHttpException = exception instanceof HttpException;
     const status = wasHttpException ? exception.getStatus() : 500;
+    const span = trace.getActiveSpan();
+    const { httpAdapter } = this.httpAdapterHost;
+    const body = wasHttpException
+      ? exception.getResponse()
+      : internalServerErrorResponse;
 
-    const defaultData = getDefaultLogReqData();
-    const internalServerErrorResponse = {
-      message: 'Internal server error',
-    };
+    if (!span) {
+      httpAdapter.reply(ctx.getResponse(), body, status);
+      return;
+    }
+    const defaultData = getDefaultLogReqData(span);
+
+    span.setAttribute('time.finish', Date.now());
+    span.addEvent('A requisição falhou');
 
     const logData: FinishLogReqData = {
       message: 'Requisição falhou',
@@ -35,10 +48,6 @@ export class OnExceptionFilter implements ExceptionFilter {
     };
     logger[status === 500 ? 'error' : 'warn'](logData);
 
-    const body = wasHttpException
-      ? exception.getResponse()
-      : internalServerErrorResponse;
-    const { httpAdapter } = this.httpAdapterHost;
     httpAdapter.reply(ctx.getResponse(), body, status);
   }
 }

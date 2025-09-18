@@ -1,27 +1,11 @@
-import { trace, context } from '@opentelemetry/api';
-import { Request } from 'express';
+import { Span } from '@opentelemetry/api';
 
-export function getDefaultLogReqData(req?: Request) {
-  const currentSpan = trace.getSpan(context.active());
-  if (!currentSpan) {
-    return {};
-  }
-  const { spanId, traceId } = currentSpan.spanContext();
-  let output = {
+export function getDefaultLogReqData(span: Span) {
+  const { spanId, traceId } = span.spanContext();
+  const output = {
     'span.id': spanId,
     'trace.id': traceId,
   };
-
-  if (req) {
-    const reqData = {
-      'http.method': req.method,
-      'http.url': req.baseUrl || req.url,
-      'http.version': req.httpVersion,
-      'http.client.ip': req.ip,
-      'http.proxy.ip': req.headers['x-forwarded-for'],
-    };
-    output = { ...output, ...reqData };
-  }
 
   return output;
 }
