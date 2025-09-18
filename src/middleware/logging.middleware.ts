@@ -1,46 +1,55 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { context, trace } from '@opentelemetry/api';
 import { Request, Response, NextFunction } from 'express';
+import { regexUUID } from 'src/common/constants/regex';
 import { FinishLogReqData, InitLogReqData } from 'src/common/types/LogData';
-import { getDefaultLogReqData } from 'src/common/utils/getDefaultLogReqData';
 import { logger } from 'src/logger/logger';
 
 @Injectable()
 export class LoggingMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction): void {
     const tracer = trace.getTracer('requests');
-    const span = tracer.startSpan(`HTTP ${req.method} ${req.url}`, {
+
+    const usedUUID: string[] = [];
+    const maskedUrl = req.baseUrl.replace(regexUUID, (match) => {
+      usedUUID.push(match);
+      return '*';
+    });
+
+    const span = tracer.startSpan(`HTTP ${req.method} ${maskedUrl}`, {
       attributes: {
         'http.method': req.method,
-        'http.url': req.baseUrl || req.url,
+        'http.url': maskedUrl,
         'http.version': req.httpVersion,
         'http.client.ip': req.ip,
         'http.proxy.ip': req.headers['x-forwarded-for'],
         'time.init': Date.now(),
       },
     });
+    req['span'] = span;
     trace.setSpan(context.active(), span);
-    span.addEvent('Requisição recebida');
-    const defaultData = getDefaultLogReqData(span);
+    if (usedUUID[0]) {
+      span.setAttribute('operation.target.uuid', usedUUID[0]);
+    }
+
     const logData: InitLogReqData = {
       message: 'Requisição recebida',
-      ...defaultData,
     };
-    logger.info(logData);
+    logger.info(span, logData);
 
     res.on('finish', () => {
       const { statusCode } = res;
-      if (statusCode < 400) {
-        const logData: FinishLogReqData = {
-          message: 'Requisição concluída',
-          ...defaultData,
-          'http.status_code': statusCode,
-          'http.body': JSON.stringify(req.body),
-        };
-        span.addEvent('Requisição concluída');
-        logger.info(logData);
+      span.setAttribute('http.status_code', statusCode);
+      span.setAttribute('time.finish', Date.now());
+      const logData: FinishLogReqData = {
+        message: 'Requisição concluída',
+        'http.body': JSON.stringify(req.body),
+      };
+      const wasSuccess = statusCode <= 400;
+      if (wasSuccess) {
+        logger.info(span, logData);
+        span.end();
       }
-      span.end();
     });
 
     next();
