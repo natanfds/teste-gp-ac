@@ -20,7 +20,7 @@ import { GroupResponseDto } from 'src/groups/dto/group-response.dto';
 function generateCreateUserDto(): CreateUserDto {
   return {
     name: uniqueNamesGenerator({
-      dictionaries: [animals],
+      dictionaries: [animals, colors],
     }),
     email:
       uniqueNamesGenerator({
@@ -32,7 +32,7 @@ function generateCreateUserDto(): CreateUserDto {
 function generateCreateGroupDto(): CreateGroupDto {
   return {
     name: uniqueNamesGenerator({
-      dictionaries: [animals],
+      dictionaries: [animals, colors],
     }),
   };
 }
@@ -55,9 +55,9 @@ describe('Integração: Users & Groups (e2e)', () => {
 
   const createUserData = generateCreateUserDto();
 
-  const firstGroupData = generateCreateGroupDto();
+  const parentGroupData = generateCreateGroupDto();
 
-  const secondGroupData = generateCreateGroupDto();
+  const childGroupData = generateCreateGroupDto();
 
   it('POST /users deve criar um usuário', async () => {
     const res = await request(app.getHttpServer())
@@ -88,7 +88,7 @@ describe('Integração: Users & Groups (e2e)', () => {
   it('POST /groups deve criar grupo sem parentId', async () => {
     const res = await request(app.getHttpServer())
       .post('/groups')
-      .send(firstGroupData)
+      .send(parentGroupData)
       .expect(201);
 
     idGroupChild = res.body.id;
@@ -96,7 +96,7 @@ describe('Integração: Users & Groups (e2e)', () => {
     expect(res.body).toEqual({
       id: expect.any(String),
       type: 'GROUP',
-      name: firstGroupData.name,
+      name: parentGroupData.name,
       parentId: null,
     });
   });
@@ -106,21 +106,21 @@ describe('Integração: Users & Groups (e2e)', () => {
     // cria parent
     const parent = await request(app.getHttpServer())
       .post('/groups')
-      .send(secondGroupData)
+      .send(parentGroupData)
       .expect(201);
 
     idGroupParent = parent.body.id;
     createdGroups.push(parent.body);
     const res = await request(app.getHttpServer())
       .post('/groups')
-      .send({ name: firstGroupData.name, parentId: idGroupParent })
+      .send({ name: childGroupData.name, parentId: idGroupParent })
       .expect(201);
 
     createdGroups.push(res.body);
     expect(res.body).toEqual({
       id: expect.any(String),
       type: 'GROUP',
-      name: firstGroupData.name,
+      name: childGroupData.name,
       parentId: expect.any(String),
     });
   });
@@ -155,6 +155,40 @@ describe('Integração: Users & Groups (e2e)', () => {
       createdGroups
         .reverse()
         .map((g, i) => ({ id: g.id, name: g.name, depth: i + 1 })),
+    );
+  });
+
+  it('GET /nodes/:id/ancestors deve listar ancestrais', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/nodes/${(createdGroups[0] as GroupResponseDto).id}/ancestors`)
+      .expect(200);
+
+    expect(res.body).toEqual(
+      createdGroups
+        .map((g, i) => {
+          return {
+            id: g.id,
+            name: g.name,
+            depth: i + 1,
+          };
+        })
+        .reverse(),
+    );
+  });
+
+  it('GET /nodes/:id/descendants deve listar descendentes', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/nodes/${(createdGroups[1] as GroupResponseDto).id}/descendants`)
+      .expect(200);
+
+    expect(res.body).toEqual(
+      createdGroups.reverse().map((g, i) => {
+        return {
+          id: g.id,
+          name: g.name,
+          depth: i + 1,
+        };
+      }),
     );
   });
 });
