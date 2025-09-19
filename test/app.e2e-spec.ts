@@ -83,15 +83,12 @@ describe('Integração: Users & Groups (e2e)', () => {
   });
 
   let idGroupParent: string;
-  let idGroupChild: string;
 
   it('POST /groups deve criar grupo sem parentId', async () => {
     const res = await request(app.getHttpServer())
       .post('/groups')
       .send(parentGroupData)
       .expect(201);
-
-    idGroupChild = res.body.id;
 
     expect(res.body).toEqual({
       id: expect.any(String),
