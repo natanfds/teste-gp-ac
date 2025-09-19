@@ -4,18 +4,18 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { AppModule } from '../src/app.module.ts';
-import { regexUUID } from '../src/common/constants/regex.ts';
+import { AppModule } from '../src/app.module';
+import { regexUUID } from '../src/common/constants/regex';
 import {
   adjectives,
   animals,
   colors,
   uniqueNamesGenerator,
 } from 'unique-names-generator';
-import { CreateUserDto } from 'src/users/dto/create-user.dto.ts';
-import { CreateGroupDto } from 'src/groups/dto/create-group.dto.ts';
-import { UserResponseDto } from 'src/users/dto/user-response.dto.ts';
-import { GroupResponseDto } from 'src/groups/dto/group-response.dto.ts';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { CreateGroupDto } from 'src/groups/dto/create-group.dto';
+import { UserResponseDto } from 'src/users/dto/user-response.dto';
+import { GroupResponseDto } from 'src/groups/dto/group-response.dto';
 
 function generateCreateUserDto(): CreateUserDto {
   return {
@@ -101,7 +101,7 @@ describe('Integração: Users & Groups (e2e)', () => {
     });
   });
 
-  let createdGroups: GroupResponseDto[] = [];
+  const createdGroups: GroupResponseDto[] = [];
   it('POST /groups deve criar grupo com parentId', async () => {
     // cria parent
     const parent = await request(app.getHttpServer())
@@ -137,6 +137,13 @@ describe('Integração: Users & Groups (e2e)', () => {
       .post(`/users/${user.body.id}/groups`)
       .send({ groupId: (createdGroups[1] as GroupResponseDto).id })
       .expect(204);
+  });
+
+  it('POST /users/:id/groups não deve permitir uma associação repetida', async () => {
+    await request(app.getHttpServer())
+      .post(`/users/${userWithGroupsAssociateds.id}/groups`)
+      .send({ groupId: (createdGroups[1] as GroupResponseDto).id })
+      .expect(409);
   });
 
   it('GET /users/:id/organizations deve retornar grupos associados (diretos e herdados)', async () => {
