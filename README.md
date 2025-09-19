@@ -20,6 +20,14 @@
 
 Anternativamente ao invés de realizar a build e executar o servidor pode se executar ele em modo de desenvolvimento `npm run start:dev`
 
+#### Arquivo env do ambiente de desenvolvimento
+
+```bash
+PORT=3000
+DATABASE_URL=postgresql://user:password@localhost:5432/mydb
+TRACE_EXPORT_URL=http://localhost:4318/v1/traces
+```
+
 ### 🏗️ Scripts Disponíveis
 
 No diretório do projeto, você pode executar:
