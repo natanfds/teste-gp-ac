@@ -39,6 +39,14 @@ describe('Integração: Users & Groups (e2e)', () => {
       }) + '@example.com',
   };
 
+  const firstGroupName = uniqueNamesGenerator({
+    dictionaries: [animals],
+  });
+
+  const secondGroupName = uniqueNamesGenerator({
+    dictionaries: [animals, colors],
+  });
+
   it('POST /users deve criar um usuário', async () => {
     const res = await request(app.getHttpServer())
       .post('/users')
@@ -55,10 +63,44 @@ describe('Integração: Users & Groups (e2e)', () => {
     expect(res.body.id).toMatch(regexUUID);
   });
 
-  it('POST /users deve seri impedido de criar um usuário com email repetido', async () => {
+  it('POST /users deve ser impedido de criar um usuário com email repetido', async () => {
     await request(app.getHttpServer())
       .post('/users')
       .send(createData)
       .expect(409);
+  });
+
+  it('POST /groups deve criar grupo sem parentId', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/groups')
+      .send({ name: firstGroupName })
+      .expect(201);
+
+    expect(res.body).toEqual({
+      id: expect.any(String),
+      type: 'GROUP',
+      name: firstGroupName,
+      parentId: null,
+    });
+  });
+
+  it('POST /groups deve criar grupo com parentId', async () => {
+    // cria parent
+    const parent = await request(app.getHttpServer())
+      .post('/groups')
+      .send({ name: secondGroupName })
+      .expect(201);
+
+    const res = await request(app.getHttpServer())
+      .post('/groups')
+      .send({ name: firstGroupName, parentId: parent.body.id })
+      .expect(201);
+
+    expect(res.body).toEqual({
+      id: expect.any(String),
+      type: 'GROUP',
+      name: firstGroupName,
+      parentId: expect.any(String),
+    });
   });
 });
