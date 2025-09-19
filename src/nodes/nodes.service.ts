@@ -34,6 +34,6 @@ export class NodesService {
         depth: depth,
       });
     });
-    return output;
+    return output.sort((a, b) => a.depth - b.depth);
   }
 }

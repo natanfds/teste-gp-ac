@@ -161,15 +161,13 @@ describe('Integração: Users & Groups (e2e)', () => {
       .expect(200);
 
     expect(res.body).toEqual(
-      createdGroups
-        .map((g, i) => {
-          return {
-            id: g.id,
-            name: g.name,
-            depth: i + 1,
-          };
-        })
-        .reverse(),
+      createdGroups.map((g, i) => {
+        return {
+          id: g.id,
+          name: g.name,
+          depth: i + 1,
+        };
+      }),
     );
   });
 
