@@ -1,25 +1,64 @@
-import { Test, TestingModule } from '@nestjs/testing';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { Test } from '@nestjs/testing';
+import request from 'supertest';
+import { AppModule } from '../src/app.module.ts';
+import { regexUUID } from '../src/common/constants/regex.ts';
+import {
+  adjectives,
+  animals,
+  colors,
+  uniqueNamesGenerator,
+} from 'unique-names-generator';
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+describe('Integração: Users & Groups (e2e)', () => {
+  let app: INestApplication;
 
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleRef.createNestApplication();
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
+  });
+
+  const createData = {
+    name: uniqueNamesGenerator({
+      dictionaries: [animals],
+    }),
+    email:
+      uniqueNamesGenerator({
+        dictionaries: [colors, adjectives, animals],
+      }) + '@example.com',
+  };
+
+  it('POST /users deve criar um usuário', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/users')
+      .send(createData)
+      .expect(201);
+
+    expect(res.body).toEqual({
+      id: expect.any(String),
+      type: 'USER',
+      ...createData,
+    });
+
+    // valida se id é uuid
+    expect(res.body.id).toMatch(regexUUID);
+  });
+
+  it('POST /users deve seri impedido de criar um usuário com email repetido', async () => {
+    await request(app.getHttpServer())
+      .post('/users')
+      .send(createData)
+      .expect(409);
   });
 });

@@ -27,6 +27,8 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noPropertyAccessFromIndexSignature": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   }
 }
