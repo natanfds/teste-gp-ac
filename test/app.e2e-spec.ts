@@ -14,6 +14,8 @@ import {
 } from 'unique-names-generator';
 import { CreateUserDto } from 'src/users/dto/create-user.dto.ts';
 import { CreateGroupDto } from 'src/groups/dto/create-group.dto.ts';
+import { UserResponseDto } from 'src/users/dto/user-response.dto.ts';
+import { GroupResponseDto } from 'src/groups/dto/group-response.dto.ts';
 
 function generateCreateUserDto(): CreateUserDto {
   return {
@@ -99,6 +101,7 @@ describe('Integração: Users & Groups (e2e)', () => {
     });
   });
 
+  let createdGroups: GroupResponseDto[] = [];
   it('POST /groups deve criar grupo com parentId', async () => {
     // cria parent
     const parent = await request(app.getHttpServer())
@@ -107,12 +110,13 @@ describe('Integração: Users & Groups (e2e)', () => {
       .expect(201);
 
     idGroupParent = parent.body.id;
-
+    createdGroups.push(parent.body);
     const res = await request(app.getHttpServer())
       .post('/groups')
       .send({ name: firstGroupData.name, parentId: idGroupParent })
       .expect(201);
 
+    createdGroups.push(res.body);
     expect(res.body).toEqual({
       id: expect.any(String),
       type: 'GROUP',
@@ -121,18 +125,29 @@ describe('Integração: Users & Groups (e2e)', () => {
     });
   });
 
+  let userWithGroupsAssociateds: UserResponseDto;
   it('POST /users/:id/groups deve associar usuário ao grupo', async () => {
     const user = await request(app.getHttpServer())
       .post('/users')
       .send(generateCreateUserDto());
 
-    const group = await request(app.getHttpServer())
-      .post('/groups')
-      .send(generateCreateGroupDto());
+    userWithGroupsAssociateds = user.body;
 
     await request(app.getHttpServer())
       .post(`/users/${user.body.id}/groups`)
-      .send({ groupId: group.body.id })
+      .send({ groupId: (createdGroups[1] as GroupResponseDto).id })
       .expect(204);
+  });
+
+  it('GET /users/:id/organizations deve retornar grupos associados (diretos e herdados)', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/users/${userWithGroupsAssociateds.id}/organizations`)
+      .expect(200);
+
+    expect(res.body).toEqual(
+      createdGroups
+        .reverse()
+        .map((g, i) => ({ id: g.id, name: g.name, depth: i + 1 })),
+    );
   });
 });
