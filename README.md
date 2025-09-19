@@ -14,8 +14,9 @@
 2. Instale as dependências:`npm install`.
 3. Crie um arquivo `.env` baseado no `.env.example` na raiz do projeto.
 4. Execute os containers:`docker-compose up -d`
-5. Faça o build do projeto:`npm run build`
-6. Inicie o servidor:`npm run start:prod`
+5. Execute as migratioins do código `npm run migrate`
+6. Faça o build do projeto:`npm run build`
+7. Inicie o servidor:`npm run start:prod`
 
 Anternativamente ao invés de realizar a build e executar o servidor pode se executar ele em modo de desenvolvimento `npm run start:dev`
 
