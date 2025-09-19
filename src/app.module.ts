@@ -9,7 +9,12 @@ import { DatabaseModule } from './database/database.module';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 import { APP_FILTER } from '@nestjs/core';
 import { OnExceptionFilter } from './filters/onException.filter';
-import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import {
+  PrometheusModule,
+  makeCounterProvider,
+  makeHistogramProvider,
+} from '@willsoto/nestjs-prometheus';
+import { MetricsMiddleware } from './middleware/metrics.middleware';
 
 @Module({
   imports: [
@@ -32,10 +37,22 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus';
       provide: APP_FILTER,
       useClass: OnExceptionFilter,
     },
+    makeCounterProvider({
+      name: 'http_requests_total',
+      help: 'Total de requisições HTTP recebidas',
+      labelNames: ['method', 'route', 'status_code'],
+    }),
+    makeHistogramProvider({
+      name: 'http_request_duration_seconds',
+      help: 'Duração das requisições HTTP em segundos',
+      labelNames: ['method', 'route', 'status_code'],
+      buckets: [0.1, 0.5, 1, 2, 5],
+    }),
   ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggingMiddleware).forRoutes('*');
+    consumer.apply(MetricsMiddleware).forRoutes('*');
   }
 }

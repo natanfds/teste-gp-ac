@@ -4,17 +4,16 @@ import { Request, Response, NextFunction } from 'express';
 import { regexUUID } from '../common/constants/regex';
 import { FinishLogReqData, InitLogReqData } from '../common/types/LogData';
 import { logger } from '../logger/logger';
+import { maskUrl } from 'src/common/utils/maskUrl';
 
 @Injectable()
 export class LoggingMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction): void {
     const tracer = trace.getTracer('requests');
 
-    const usedUUID: string[] = [];
-    const maskedUrl = req.baseUrl.replace(regexUUID, (match) => {
-      usedUUID.push(match);
-      return '*';
-    });
+    const url = req.baseUrl;
+    const usedUUID = url.match(regexUUID);
+    const maskedUrl = maskUrl(url);
 
     const span = tracer.startSpan(`HTTP ${req.method} ${maskedUrl}`, {
       attributes: {
@@ -28,7 +27,7 @@ export class LoggingMiddleware implements NestMiddleware {
     });
     req['span'] = span;
     trace.setSpan(context.active(), span);
-    if (usedUUID[0]) {
+    if (usedUUID) {
       span.setAttribute('operation.target.uuid', usedUUID[0]);
     }
 
