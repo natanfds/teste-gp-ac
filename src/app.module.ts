@@ -9,6 +9,7 @@ import { DatabaseModule } from './database/database.module';
 import { LoggingMiddleware } from './middleware/logging.middleware';
 import { APP_FILTER } from '@nestjs/core';
 import { OnExceptionFilter } from './filters/onException.filter';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 
 @Module({
   imports: [
@@ -19,6 +20,10 @@ import { OnExceptionFilter } from './filters/onException.filter';
     GroupsModule,
     NodesModule,
     DatabaseModule,
+    PrometheusModule.register({
+      defaultMetrics: { enabled: true },
+      path: '/metrics',
+    }),
   ],
   controllers: [AppController],
   providers: [
