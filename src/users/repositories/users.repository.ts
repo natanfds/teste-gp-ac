@@ -4,11 +4,11 @@ import { userEntity } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 
 import { AssociateUserGroupDto } from '../dto/associate-user-group.dto';
-import { userNodesRelEntity } from 'src/common/entities/user-node-rel.entity';
-import { NodeDto } from 'src/common/dtos/node.dto';
+import { userNodesRelEntity } from '../../common/entities/user-node-rel.entity';
+import { NodeDto } from '../../common/dtos/node.dto';
 import { eq } from 'drizzle-orm';
-import { nodeEntity } from 'src/common/entities/node.entity';
-import { closureNodesEntity } from 'src/common/entities/closure-nodes.entity';
+import { nodeEntity } from '../../common/entities/node.entity';
+import { closureNodesEntity } from '../../common/entities/closure-nodes.entity';
 @Injectable()
 export class UsersRepository {
   constructor(@Inject('DB') private db: ReturnType<typeof drizzle>) {}

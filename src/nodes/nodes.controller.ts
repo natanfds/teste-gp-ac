@@ -1,6 +1,6 @@
 import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
 import { NodesService } from './nodes.service';
-import { NodeDto } from 'src/common/dtos/node.dto';
+import { NodeDto } from '../common/dtos/node.dto';
 
 @Controller('nodes')
 export class NodesController {

@@ -1,9 +1,9 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { context, trace } from '@opentelemetry/api';
 import { Request, Response, NextFunction } from 'express';
-import { regexUUID } from 'src/common/constants/regex';
-import { FinishLogReqData, InitLogReqData } from 'src/common/types/LogData';
-import { logger } from 'src/logger/logger';
+import { regexUUID } from '../common/constants/regex';
+import { FinishLogReqData, InitLogReqData } from '../common/types/LogData';
+import { logger } from '../logger/logger';
 
 @Injectable()
 export class LoggingMiddleware implements NestMiddleware {

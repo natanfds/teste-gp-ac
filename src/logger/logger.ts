@@ -1,7 +1,7 @@
 import pino from 'pino';
 import { ecsFormat } from '@elastic/ecs-pino-format';
 import { Span } from '@opentelemetry/api';
-import { FinishLogReqData, InitLogReqData } from 'src/common/types/LogData';
+import { FinishLogReqData, InitLogReqData } from '../common/types/LogData';
 
 const internalLogger = pino(ecsFormat());
 

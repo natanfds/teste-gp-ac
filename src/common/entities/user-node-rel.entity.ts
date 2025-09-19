@@ -1,6 +1,6 @@
 import { pgTable, uuid, primaryKey, index } from 'drizzle-orm/pg-core';
-import { userEntity } from 'src/users/entities/user.entity';
-import { nodeEntity } from 'src/common/entities/node.entity';
+import { userEntity } from '../../users/entities/user.entity';
+import { nodeEntity } from '../../common/entities/node.entity';
 
 export const userNodesRelEntity = pgTable(
   'user_nodes',

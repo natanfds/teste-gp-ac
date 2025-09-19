@@ -7,8 +7,8 @@ import {
 import { HttpAdapterHost } from '@nestjs/core';
 import { Span } from '@opentelemetry/api';
 import { Request } from 'express';
-import { FinishLogReqData } from 'src/common/types/LogData';
-import { logger } from 'src/logger/logger';
+import { FinishLogReqData } from '../common/types/LogData';
+import { logger } from '../logger/logger';
 
 @Catch()
 export class OnExceptionFilter implements ExceptionFilter {

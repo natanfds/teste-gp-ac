@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { CreateGroupDto } from '../dto/create-group.dto';
-import { ClosureRepository } from 'src/common/repositories/closure.repository';
-import { nodeEntity } from 'src/common/entities/node.entity';
+import { ClosureRepository } from '../../common/repositories/closure.repository';
+import { nodeEntity } from '../../common/entities/node.entity';
 
 @Injectable()
 export class GroupRepository {

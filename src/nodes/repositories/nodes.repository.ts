@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { nodeEntity } from 'src/common/entities/node.entity';
+import { nodeEntity } from '../../common/entities/node.entity';
 import { inArray } from 'drizzle-orm';
 
 @Injectable()

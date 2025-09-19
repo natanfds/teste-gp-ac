@@ -11,7 +11,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { AssociateUserGroupDto } from './dto/associate-user-group.dto';
 import { UserResponseDto } from './dto/user-response.dto';
-import type { NodeListDto } from 'src/common/dtos/node.dto';
+import type { NodeListDto } from '../common/dtos/node.dto';
 
 @Controller('users')
 export class UsersController {

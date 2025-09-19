@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { NodeDto } from 'src/common/dtos/node.dto';
-import { ClosureRepository } from 'src/common/repositories/closure.repository';
+import { NodeDto } from '../common/dtos/node.dto';
+import { ClosureRepository } from '../common/repositories/closure.repository';
 import { NodeRepository } from './repositories/nodes.repository';
-import { RelashionshipKind } from 'src/common/types/literals';
+import { RelashionshipKind } from '../common/types/literals';
 
 @Injectable()
 export class NodesService {

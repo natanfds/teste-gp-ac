@@ -3,8 +3,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersRepository } from './repositories/users.repository';
 import { AssociateUserGroupDto } from './dto/associate-user-group.dto';
-import { NodeDto } from 'src/common/dtos/node.dto';
-import { DataConflict } from 'src/common/decorators/dataConflict';
+import { NodeDto } from '../common/dtos/node.dto';
+import { DataConflict } from '../common/decorators/dataConflict';
 
 @Injectable()
 export class UsersService {
